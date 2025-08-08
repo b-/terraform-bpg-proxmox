@@ -99,7 +99,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
 
     user_account {
       username = var.ci_user
-      keys     = (var.ci_ssh_key != null ? [file("${var.ci_ssh_key}")] : null)
+      keys     = (var.ci_ssh_key != null ? ["${var.ci_ssh_key}"] : null)
     }
 
     dns {

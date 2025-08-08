@@ -231,7 +231,7 @@ variable "ci_user" {
 }
 
 variable "ci_ssh_key" {
-  description = "File path to SSH key for 'default' user, e.g. `~/.ssh/id_ed25519.pub`."
+  description = "SSH key for 'default' user."
   type        = string
   default     = null
 }

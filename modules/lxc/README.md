@@ -89,7 +89,7 @@ provider "proxmox" {
 
   ssh {
     agent       = false
-    private_key = file("${var.ssh_key_path}")
+    private_key = "${var.ssh_key_path}"
   }
 }
 ```

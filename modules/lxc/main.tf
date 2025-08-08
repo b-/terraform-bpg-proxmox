@@ -34,7 +34,7 @@ resource "proxmox_virtual_environment_container" "lxc" {
     }
 
     user_account {
-      keys     = [file("${var.user_ssh_key_public}")]
+      keys     = ["${var.user_ssh_key_public}"]
       password = var.user_password
     }
   }
