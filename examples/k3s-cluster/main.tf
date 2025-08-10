@@ -20,7 +20,7 @@ resource "null_resource" "cloud_init" {
     port        = var.pve_host_port
     user        = var.pve_user
     password    = var.pve_password
-    private_key = file(var.pve_ssh_key_private)
+    private_key = var.pve_ssh_key_private
   }
 
   provisioner "file" {
