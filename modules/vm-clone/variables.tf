@@ -7,6 +7,7 @@ variable "node" {
 variable "vm_id" {
   description = "ID number for new VM."
   type        = number
+  default = null
 }
 
 variable "vm_name" {
@@ -316,4 +317,5 @@ variable "ci_vendor_data_contents" {
 
 variable "ci_snippets_storage" {
   description = "Disk storage location to write custom cloud-init `_contents` snippets. Must have `snippets` enabled in Datacenter options."
+  type        = string
 }

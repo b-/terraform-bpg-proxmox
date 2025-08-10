@@ -7,6 +7,7 @@ variable "node" {
 variable "lxc_id" {
   description = "ID number for new LXC."
   type        = number
+  default = null
 }
 
 variable "lxc_name" {
@@ -160,6 +161,17 @@ variable "user_ssh_key_public" {
   sensitive   = true
   validation {
     condition     = can(regex("(?i)PRIVATE", var.user_ssh_key_public)) == false
+    error_message = "Error: Private SSH Key."
+  }
+}
+
+variable "user_ssh_keys" {
+  description = "Public SSH Keys for LXC user"
+  default     = null
+  type        = list(string)
+  sensitive   = true
+  validation {
+    condition     = can(regex("(?i)PRIVATE", var.user_ssh_keys)) == false
     error_message = "Error: Private SSH Key."
   }
 }
