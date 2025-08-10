@@ -230,6 +230,12 @@ variable "ci_user" {
   default     = null
 }
 
+variable "ci_ssh_keys" {
+  description = "SSH keys for 'default' user."
+  type        = list(string)
+  default     = []
+}
+
 variable "ci_ssh_key" {
   description = "SSH key for 'default' user."
   type        = string
