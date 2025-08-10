@@ -92,10 +92,10 @@ resource "proxmox_virtual_environment_vm" "vm" {
   # cloud-init config
   initialization {
     datastore_id         = var.ci_datastore_id
-    meta_data_file_id    = try(proxmox_virtual_environment_file.ci_meta_data_file.id, var.ci_meta_data)
-    network_data_file_id = try(proxmox_virtual_environment_file.ci_network_data_file.id, var.ci_network_data)
-    user_data_file_id    = try(proxmox_virtual_environment_file.ci_user_data_file.id, var.ci_user_data)
-    vendor_data_file_id  = try(proxmox_virtual_environment_file.ci_vendor_data_file.id, var.ci_vendor_data)
+    meta_data_file_id    = try(proxmox_virtual_environment_file.ci_meta_data_file[0].id, var.ci_meta_data)
+    network_data_file_id = try(proxmox_virtual_environment_file.ci_network_data_file[0].id, var.ci_network_data)
+    user_data_file_id    = try(proxmox_virtual_environment_file.ci_user_data_file[0].id, var.ci_user_data)
+    vendor_data_file_id  = try(proxmox_virtual_environment_file.ci_vendor_data_file[0].id, var.ci_vendor_data)
 
     user_account {
       username = var.ci_user
