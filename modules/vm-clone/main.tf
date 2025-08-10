@@ -144,10 +144,10 @@ resource "proxmox_virtual_environment_file" "ci_meta_data_file" {
   content_type = "snippets"
   datastore_id = var.ci_snippets_storage
   node_name    = var.node
-  file_name    = "${local.short_ci_meta_data_contents_hash}.meta-data.yaml"
 
   source_raw {
-    data = var.ci_meta_data_contents
+    file_name = "${local.short_ci_meta_data_contents_hash}.meta-data.yaml"
+    data      = var.ci_meta_data_contents
   }
 }
 
@@ -156,10 +156,10 @@ resource "proxmox_virtual_environment_file" "ci_network_data_file" {
   content_type = "snippets"
   datastore_id = var.ci_snippets_storage
   node_name    = var.node
-  file_name    = "${local.short_ci_network_data_contents_hash}.network-config.yaml"
 
   source_raw {
-    data = var.ci_network_data_contents
+    file_name = "${local.short_ci_network_data_contents_hash}.network-config.yaml"
+    data      = var.ci_network_data_contents
   }
 }
 
@@ -168,10 +168,10 @@ resource "proxmox_virtual_environment_file" "ci_user_data_file" {
   content_type = "snippets"
   datastore_id = var.ci_snippets_storage
   node_name    = var.node
-  file_name    = "${local.short_ci_user_data_contents_hash}.user-data.yaml"
 
   source_raw {
-    data = var.ci_user_data_contents
+    file_name = "${local.short_ci_user_data_contents_hash}.user-data.yaml"
+    data      = var.ci_user_data_contents
 
   }
 }
@@ -181,9 +181,9 @@ resource "proxmox_virtual_environment_file" "ci_vendor_data_file" {
   content_type = "snippets"
   datastore_id = var.ci_snippets_storage
   node_name    = var.node
-  file_name    = "${local.short_ci_vendor_data_contents_hash}.vendor-data.yaml"
 
   source_raw {
-    data = var.ci_vendor_data_contents
+    file_name = "${local.short_ci_vendor_data_contents_hash}.vendor-data.yaml"
+    data      = var.ci_vendor_data_contents
   }
 }
