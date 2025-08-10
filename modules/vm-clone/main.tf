@@ -140,7 +140,7 @@ locals {
 }
 
 resource "proxmox_virtual_environment_file" "ci_meta_data_file" {
-  count        = local.var.ci_meta_data_contents == null ? 0 : 1
+  count        = var.ci_meta_data_contents == null ? 0 : 1
   content_type = "snippets"
   datastore_id = var.ci_snippets_storage
   node_name    = var.node
@@ -152,7 +152,7 @@ resource "proxmox_virtual_environment_file" "ci_meta_data_file" {
 }
 
 resource "proxmox_virtual_environment_file" "ci_network_data_file" {
-  count        = local.var.ci_network_data_contents == null ? 0 : 1
+  count        = var.ci_network_data_contents == null ? 0 : 1
   content_type = "snippets"
   datastore_id = var.ci_snippets_storage
   node_name    = var.node
@@ -164,7 +164,7 @@ resource "proxmox_virtual_environment_file" "ci_network_data_file" {
 }
 
 resource "proxmox_virtual_environment_file" "ci_user_data_file" {
-  count        = local.var.ci_user_data_contents == null ? 0 : 1
+  count        = var.ci_user_data_contents == null ? 0 : 1
   content_type = "snippets"
   datastore_id = var.ci_snippets_storage
   node_name    = var.node
@@ -177,7 +177,7 @@ resource "proxmox_virtual_environment_file" "ci_user_data_file" {
 }
 
 resource "proxmox_virtual_environment_file" "ci_vendor_data_file" {
-  count        = local.var.ci_vendor_data_contents == null ? 0 : 1
+  count        = var.ci_vendor_data_contents == null ? 0 : 1
   content_type = "snippets"
   datastore_id = var.ci_snippets_storage
   node_name    = var.node
