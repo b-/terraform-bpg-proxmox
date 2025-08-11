@@ -95,11 +95,25 @@ resource "proxmox_virtual_environment_vm" "vm_template" {
     ssd          = var.disk_ssd
     discard      = var.disk_discard
   }
+  lifecycle {
+    replace_triggered_by = [resource.terraform_data.combined_ci_hash]
+  }
+}
+resource "terraform_data" "combined_ci_hash" {
+  input = {
+    hash = try(module.cloud_init_files[0].combined_ci_hash, 0)
+  }
 }
 
 module "cloud_init_files" {
-  count                    = var.ci_snippets_storage != null ? 1 : 0
-  source                   = "../cloud-init-files"
+  source = "../cloud-init-files"
+  count = (
+    length(trimspace(coalesce(var.ci_snippets_storage, ""))) > 0 ||
+    length(trimspace(coalesce(var.ci_meta_data_contents, ""))) > 0 ||
+    length(trimspace(coalesce(var.ci_network_data_contents, ""))) > 0 ||
+    length(trimspace(coalesce(var.ci_user_data_contents, ""))) > 0 ||
+    length(trimspace(coalesce(var.ci_vendor_data_contents, ""))) > 0
+  ) ? 1 : 0
   node                     = var.node
   ci_snippets_storage      = var.ci_snippets_storage
   ci_meta_data_contents    = var.ci_meta_data_contents
