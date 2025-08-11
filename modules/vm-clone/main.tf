@@ -146,11 +146,10 @@ resource "terraform_data" "combined_ci_hash" {
 module "cloud_init_files" {
   source = "../cloud-init-files"
   count = (
-    length(trimspace(coalesce(var.ci_snippets_storage, ""))) > 0 ||
-    length(trimspace(coalesce(var.ci_meta_data_contents, ""))) > 0 ||
-    length(trimspace(coalesce(var.ci_network_data_contents, ""))) > 0 ||
-    length(trimspace(coalesce(var.ci_user_data_contents, ""))) > 0 ||
-    length(trimspace(coalesce(var.ci_vendor_data_contents, ""))) > 0
+    length(trimspace(try(var.ci_meta_data_contents, ""))) > 0 ||
+    length(trimspace(try(var.ci_network_data_contents, ""))) > 0 ||
+    length(trimspace(try(var.ci_user_data_contents, ""))) > 0 ||
+    length(trimspace(try(var.ci_vendor_data_contents, ""))) > 0
   ) ? 1 : 0
   node                     = var.node
   ci_snippets_storage      = var.ci_snippets_storage
