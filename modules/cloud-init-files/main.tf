@@ -29,7 +29,7 @@ resource "proxmox_virtual_environment_file" "ci_meta_data" {
 
   source_raw {
     file_name = "${lower(random_id.random_id.hex)}.meta-data.yaml"
-    data      = var.ci_meta_data_contents
+    data      = sensitive(var.ci_meta_data_contents)
   }
 }
 
@@ -41,7 +41,7 @@ resource "proxmox_virtual_environment_file" "ci_network_data" {
 
   source_raw {
     file_name = "${lower(random_id.random_id.hex)}.network-config.yaml"
-    data      = var.ci_network_data_contents
+    data      = sensitive(var.ci_network_data_contents)
   }
 }
 
@@ -53,7 +53,7 @@ resource "proxmox_virtual_environment_file" "ci_user_data" {
 
   source_raw {
     file_name = "${lower(random_id.random_id.hex)}.user-data.yaml"
-    data      = var.ci_user_data_contents
+    data      = sensitive(var.ci_user_data_contents)
   }
 }
 
@@ -65,7 +65,7 @@ resource "proxmox_virtual_environment_file" "ci_vendor_data" {
 
   source_raw {
     file_name = "${lower(random_id.random_id.hex)}.vendor-data.yaml"
-    data      = var.ci_vendor_data_contents
+    data      = sensitive(var.ci_vendor_data_contents)
   }
 }
 
