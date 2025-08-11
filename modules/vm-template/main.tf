@@ -86,7 +86,7 @@ resource "proxmox_virtual_environment_vm" "vm_template" {
 
   dynamic "serial_device" {
     for_each = var.serial ? [1] : []
-    #content {}
+    content {}
   }
 
   disk {
