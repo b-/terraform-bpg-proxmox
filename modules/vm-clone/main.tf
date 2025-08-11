@@ -112,9 +112,17 @@ resource "proxmox_virtual_environment_vm" "vm" {
       try(module.cloud_init_files[0].vendor_data_file_id, null)
     ), null)
 
-    user_account {
+    dynamic "user_account" {
+        for_each = (
+          (var.ci_user != null && trimspace(var.ci_user) != "") ||
+          (var.ci_ssh_key != null && trimspace(var.ci_ssh_key) != "") ||
+          (var.ci_ssh_keys != null && length(var.ci_ssh_keys) > 0)
+        ) ? [1] : []
+
+        content {
       username = var.ci_user
       keys     = flatten([var.ci_ssh_key != null ? [var.ci_ssh_key] : [], var.ci_ssh_keys != null ? var.ci_ssh_keys : []])
+    }
     }
 
     dns {
