@@ -147,9 +147,9 @@ resource "proxmox_virtual_environment_vm" "vm" {
 }
 resource "terraform_data" "combined_ci_hash" {
   input = {
-    hash = try(module.cloud_init_files[0].combined_ci_hash, 0)
+    hash = try(module.cloud_init_files.combined_ci_hash, 0)
   }
-  triggers_replace = [module.cloud_init_files[0].combined_ci_hash]
+  triggers_replace = [module.cloud_init_files.combined_ci_hash]
 }
 
 module "cloud_init_files" {
