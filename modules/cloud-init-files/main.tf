@@ -28,7 +28,7 @@ resource "proxmox_virtual_environment_file" "ci_meta_data" {
   node_name    = var.node
 
   source_raw {
-    file_name = "${lower(local.short_ci_meta_data_contents_hash)}.meta-data.yaml"
+    file_name = "${lower(random_id.random_id.hex)}.meta-data.yaml"
     data      = var.ci_meta_data_contents
   }
 }
@@ -40,7 +40,7 @@ resource "proxmox_virtual_environment_file" "ci_network_data" {
   node_name    = var.node
 
   source_raw {
-    file_name = "${lower(local.short_ci_network_data_contents_hash)}.network-config.yaml"
+    file_name = "${lower(random_id.random_id.hex)}.network-config.yaml"
     data      = var.ci_network_data_contents
   }
 }
@@ -52,7 +52,7 @@ resource "proxmox_virtual_environment_file" "ci_user_data" {
   node_name    = var.node
 
   source_raw {
-    file_name = "${lower(local.short_ci_user_data_contents_hash)}.user-data.yaml"
+    file_name = "${lower(random_id.random_id.hex)}.user-data.yaml"
     data      = var.ci_user_data_contents
   }
 }
@@ -64,7 +64,18 @@ resource "proxmox_virtual_environment_file" "ci_vendor_data" {
   node_name    = var.node
 
   source_raw {
-    file_name = "${lower(local.short_ci_vendor_data_contents_hash)}.vendor-data.yaml"
+    file_name = "${lower(random_id.random_id.hex)}.vendor-data.yaml"
     data      = var.ci_vendor_data_contents
+  }
+}
+
+resource "random_id" "random_id" {
+  byte_length = 8
+  keepers = {
+    short_ci_meta_data_contents_hash    = local.short_ci_meta_data_contents_hash
+    short_ci_network_data_contents_hash = local.short_ci_network_data_contents_hash
+    short_ci_user_data_contents_hash    = local.short_ci_user_data_contents_hash
+    short_ci_vendor_data_contents_hash  = local.short_ci_vendor_data_contents_hash
+    combined_ci_hash                    = local.combined_ci_hash
   }
 }
