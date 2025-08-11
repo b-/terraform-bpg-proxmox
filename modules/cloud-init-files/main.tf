@@ -72,10 +72,10 @@ resource "proxmox_virtual_environment_file" "ci_vendor_data" {
 resource "random_id" "random_id" {
   byte_length = 8
   keepers = {
-    short_ci_meta_data_contents_hash    = local.short_ci_meta_data_contents_hash
-    short_ci_network_data_contents_hash = local.short_ci_network_data_contents_hash
-    short_ci_user_data_contents_hash    = local.short_ci_user_data_contents_hash
-    short_ci_vendor_data_contents_hash  = local.short_ci_vendor_data_contents_hash
-    combined_ci_hash                    = local.combined_ci_hash
+    short_ci_meta_data_contents_hash    = nonsensitive(local.short_ci_meta_data_contents_hash)
+    short_ci_network_data_contents_hash = nonsensitive(local.short_ci_network_data_contents_hash)
+    short_ci_user_data_contents_hash    = nonsensitive(local.short_ci_user_data_contents_hash)
+    short_ci_vendor_data_contents_hash  = nonsensitive(local.short_ci_vendor_data_contents_hash)
+    combined_ci_hash                    = nonsensitive(local.combined_ci_hash)
   }
 }
