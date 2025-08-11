@@ -42,24 +42,27 @@ resource "proxmox_virtual_environment_vm" "vm_template" {
   # cloud-init config
   initialization {
     datastore_id = var.ci_datastore_id
-    meta_data_file_id = try(coalesce(
+    meta_data_file_id = try(
       var.ci_meta_data,
-      try(module.cloud_init_files[0].meta_data_file_id, null)
-    ), null)
+      module.cloud_init_files[0].meta_data_file_id,
+      null
+    )
 
-    network_data_file_id = try(coalesce(
+    network_data_file_id = try(
       var.ci_network_data,
-      try(module.cloud_init_files[0].network_data_file_id, null)
-    ), null)
-
-    user_data_file_id = try(coalesce(
+      module.cloud_init_files[0].network_data_file_id,
+      null
+    )
+    user_data_file_id = try(
       var.ci_user_data,
-      try(module.cloud_init_files[0].user_data_file_id, null)
-    ), null)
-    vendor_data_file_id = try(coalesce(
+      module.cloud_init_files[0].user_data_file_id,
+      null
+    )
+    vendor_data_file_id = try(
       var.ci_vendor_data,
-      try(module.cloud_init_files[0].vendor_data_file_id, null)
-    ), null)
+      module.cloud_init_files[0].vendor_data_file_id,
+      null
+    )
     interface = var.ci_interface
     type      = var.ci_datasource_type
   }
