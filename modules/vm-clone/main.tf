@@ -113,16 +113,16 @@ resource "proxmox_virtual_environment_vm" "vm" {
     ), null)
 
     dynamic "user_account" {
-        for_each = (
-          (var.ci_user != null && trimspace(var.ci_user) != "") ||
-          (var.ci_ssh_key != null && trimspace(var.ci_ssh_key) != "") ||
-          (var.ci_ssh_keys != null && length(var.ci_ssh_keys) > 0)
-        ) ? [1] : []
+      for_each = (
+        (var.ci_user != null && trimspace(var.ci_user) != "") ||
+        (var.ci_ssh_key != null && trimspace(var.ci_ssh_key) != "") ||
+        (var.ci_ssh_keys != null && length(var.ci_ssh_keys) > 0)
+      ) ? [1] : []
 
-        content {
-      username = var.ci_user
-      keys     = flatten([var.ci_ssh_key != null ? [var.ci_ssh_key] : [], var.ci_ssh_keys != null ? var.ci_ssh_keys : []])
-    }
+      content {
+        username = var.ci_user
+        keys     = flatten([var.ci_ssh_key != null ? [var.ci_ssh_key] : [], var.ci_ssh_keys != null ? var.ci_ssh_keys : []])
+      }
     }
 
     dns {
@@ -152,7 +152,7 @@ resource "terraform_data" "combined_ci_hash" {
 }
 
 module "cloud_init_files" {
-  source = "../cloud-init-files"
+  source                   = "../cloud-init-files"
   node                     = var.node
   ci_snippets_storage      = var.ci_snippets_storage
   ci_meta_data_contents    = var.ci_meta_data_contents

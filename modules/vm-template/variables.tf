@@ -89,6 +89,12 @@ variable "bios" {
   }
 }
 
+variable "serial" {
+  description = "Enable serial port."
+  type        = bool
+  default     = true
+}
+
 variable "qemu_guest_agent" {
   description = "Enable QEMU guest agent."
   type        = bool

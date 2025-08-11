@@ -84,6 +84,11 @@ resource "proxmox_virtual_environment_vm" "vm_template" {
     }
   }
 
+  dynamic "serial_device" {
+    for_each = var.serial ? 1 : []
+    #content {}
+  }
+
   disk {
     file_id      = module.cloud_image.id
     datastore_id = var.disk_storage
@@ -106,7 +111,7 @@ resource "terraform_data" "combined_ci_hash" {
 }
 
 module "cloud_init_files" {
-  source = "../cloud-init-files"
+  source                   = "../cloud-init-files"
   node                     = var.node
   ci_snippets_storage      = var.ci_snippets_storage
   ci_meta_data_contents    = var.ci_meta_data_contents
