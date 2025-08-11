@@ -1,3 +1,12 @@
+terraform {
+  required_version = ">=1.5.0"
+  required_providers {
+    proxmox = {
+      source  = "bpg/proxmox"
+      version = ">=0.53.1"
+    }
+  }
+}
 
 locals {
   short_ci_meta_data_contents_hash = try(substr(base64sha256(var.ci_meta_data_contents), 0, 6), "0")
