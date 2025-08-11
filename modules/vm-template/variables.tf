@@ -58,7 +58,7 @@ variable "node" {
 variable "vm_id" {
   description = "ID number for new VM."
   type        = number
-  default = null
+  default     = null
 }
 
 variable "vm_name" {

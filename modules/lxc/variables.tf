@@ -7,7 +7,7 @@ variable "node" {
 variable "lxc_id" {
   description = "ID number for new LXC."
   type        = number
-  default = null
+  default     = null
 }
 
 variable "lxc_name" {

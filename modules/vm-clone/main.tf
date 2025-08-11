@@ -133,8 +133,13 @@ resource "proxmox_virtual_environment_vm" "vm" {
   # Cloud-init SSH keys will cause a forced replacement, this is expected
   # behavior see https://github.com/bpg/terraform-provider-proxmox/issues/373
   lifecycle {
-    ignore_changes = [initialization["user_account"], ]
-    replace_triggered_by = [ try(module.cloud_init_files[0].combined_ci_hash, null) ]
+    ignore_changes       = [initialization["user_account"], ]
+    replace_triggered_by = [resource.terraform_data.combined_ci_hash]
+  }
+}
+resource "terraform_data" "combined_ci_hash" {
+  input = {
+    hash = try(module.cloud_init_files[0].combined_ci_hash, 0)
   }
 }
 

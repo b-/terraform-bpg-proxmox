@@ -9,10 +9,10 @@ terraform {
 }
 
 locals {
-  short_ci_meta_data_contents_hash = try(substr(base64sha256(var.ci_meta_data_contents), 0, 6), "0")
+  short_ci_meta_data_contents_hash    = try(substr(base64sha256(var.ci_meta_data_contents), 0, 6), "0")
   short_ci_network_data_contents_hash = try(substr(base64sha256(var.ci_network_data_contents), 0, 6), "0")
-  short_ci_user_data_contents_hash = try(substr(base64sha256(var.ci_user_data_contents), 0, 6), "0")
-  short_ci_vendor_data_contents_hash = try(substr(base64sha256(var.ci_vendor_data_contents), 0, 6), "0")
+  short_ci_user_data_contents_hash    = try(substr(base64sha256(var.ci_user_data_contents), 0, 6), "0")
+  short_ci_vendor_data_contents_hash  = try(substr(base64sha256(var.ci_vendor_data_contents), 0, 6), "0")
   combined_ci_hash = substr(sha256(join("", [
     local.short_ci_meta_data_contents_hash,
     local.short_ci_network_data_contents_hash,
