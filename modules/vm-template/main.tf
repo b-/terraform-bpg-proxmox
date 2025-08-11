@@ -99,6 +99,7 @@ resource "proxmox_virtual_environment_vm" "vm_template" {
 module "cloud_init_files" {
   count = var.ci_snippets_storage != null ? 1 : 0
   source = "../cloud-init-files"
+  node = var.node
   ci_snippets_storage = var.ci_snippets_storage
   ci_meta_data_contents = var.ci_meta_data_contents
   ci_network_data_contents = var.ci_network_data_contents

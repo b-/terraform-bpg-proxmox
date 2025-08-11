@@ -93,7 +93,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
 
   # cloud-init config
   initialization {
-    datastore_id         = var.ci_datastore_id
+    datastore_id = var.ci_datastore_id
     meta_data_file_id = coalesce(
       var.ci_meta_data,
       try(module.cloud_init_files[0].meta_data_file_id, null)
@@ -103,11 +103,11 @@ resource "proxmox_virtual_environment_vm" "vm" {
       var.ci_network_data,
       try(module.cloud_init_files[0].network_data_file_id, null)
     )
-    user_data_file_id    = coalesce(
+    user_data_file_id = coalesce(
       var.ci_user_data,
       try(module.cloud_init_files[0].user_data_file_id, null)
     )
-    vendor_data_file_id  = coalesce(
+    vendor_data_file_id = coalesce(
       var.ci_vendor_data,
       try(module.cloud_init_files[0].vendor_data_file_id, null)
     )
@@ -146,9 +146,10 @@ module "cloud_init_files" {
     length(trimspace(coalesce(var.ci_user_data_contents, ""))) > 0 ||
     length(trimspace(coalesce(var.ci_vendor_data_contents, ""))) > 0
   ) ? 1 : 0
-  ci_snippets_storage = var.ci_snippets_storage
-  ci_meta_data_contents = var.ci_meta_data_contents
+  node                     = var.node
+  ci_snippets_storage      = var.ci_snippets_storage
+  ci_meta_data_contents    = var.ci_meta_data_contents
   ci_network_data_contents = var.ci_network_data_contents
-  ci_user_data_contents = var.ci_user_data_contents
-  ci_vendor_data_contents = var.ci_vendor_data_contents
+  ci_user_data_contents    = var.ci_user_data_contents
+  ci_vendor_data_contents  = var.ci_vendor_data_contents
 }
