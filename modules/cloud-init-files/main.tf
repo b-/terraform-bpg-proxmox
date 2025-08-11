@@ -59,15 +59,3 @@ resource "proxmox_virtual_environment_file" "ci_vendor_data" {
     data      = var.ci_vendor_data_contents
   }
 }
-
-resource "proxmox_virtual_environment_file" "ci_user_data" {
-  count        = var.ci_user_data_contents == null ? 0 : 1
-  content_type = "snippets"
-  datastore_id = var.ci_snippets_storage
-  node_name    = var.node
-
-  source_raw {
-    file_name = "${lower(local.short_ci_user_data_contents_hash)}.user-data.yaml"
-    data      = var.ci_user_data_contents
-  }
-}
