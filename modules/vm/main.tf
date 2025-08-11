@@ -44,7 +44,7 @@ resource "terraform_data" "combined_ci_hash" {
   }
 }
 
-resource "proxmox_virtual_environment_vm" "vm_template" {
+resource "proxmox_virtual_environment_vm" "vm" {
   depends_on = [module.cloud_image]
 
   node_name   = var.node
@@ -54,8 +54,8 @@ resource "proxmox_virtual_environment_vm" "vm_template" {
   tags        = var.tags
   bios        = var.bios
   machine     = var.machine_type
-  started     = false
-  template    = true
+  started     = var.started
+  template    = var.template
 
   agent {
     enabled = var.qemu_guest_agent
@@ -97,6 +97,8 @@ resource "proxmox_virtual_environment_vm" "vm_template" {
     content {}
   }
 
+  scsi_hardware = var.scsi_hardware
+
   disk {
     file_id      = module.cloud_image.id
     datastore_id = var.disk_storage
@@ -108,6 +110,7 @@ resource "proxmox_virtual_environment_vm" "vm_template" {
     ssd          = var.disk_ssd
     discard      = var.disk_discard
   }
+
   lifecycle {
     replace_triggered_by = [resource.terraform_data.combined_ci_hash]
   }

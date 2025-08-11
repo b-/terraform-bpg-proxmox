@@ -33,6 +33,11 @@ resource "proxmox_virtual_environment_file" "ci_meta_data" {
   }
 }
 
+output "meta_data_file_id" {
+  value = try(resource.proxmox_virtual_environment_file.ci_meta_data[0].id, null)
+}
+
+
 resource "proxmox_virtual_environment_file" "ci_network_data" {
   count        = var.ci_network_data_contents == null ? 0 : 1
   content_type = "snippets"
@@ -43,6 +48,10 @@ resource "proxmox_virtual_environment_file" "ci_network_data" {
     file_name = "${lower(random_id.random_id.hex)}.network-config.yaml"
     data      = sensitive(var.ci_network_data_contents)
   }
+}
+
+output "network_data_file_id" {
+  value = try(resource.proxmox_virtual_environment_file.ci_network_data[0].id, null)
 }
 
 resource "proxmox_virtual_environment_file" "ci_user_data" {
@@ -57,6 +66,10 @@ resource "proxmox_virtual_environment_file" "ci_user_data" {
   }
 }
 
+output "user_data_file_id" {
+  value = try(resource.proxmox_virtual_environment_file.ci_user_data[0].id, null)
+}
+
 resource "proxmox_virtual_environment_file" "ci_vendor_data" {
   count        = var.ci_vendor_data_contents == null ? 0 : 1
   content_type = "snippets"
@@ -69,6 +82,10 @@ resource "proxmox_virtual_environment_file" "ci_vendor_data" {
   }
 }
 
+output "vendor_data_file_id" {
+  value = resource.proxmox_virtual_environment_file.ci_vendor_data[0].id
+}
+
 resource "random_id" "random_id" {
   byte_length = 8
   keepers = {
@@ -78,4 +95,8 @@ resource "random_id" "random_id" {
     short_ci_vendor_data_contents_hash  = nonsensitive(local.short_ci_vendor_data_contents_hash)
     combined_ci_hash                    = nonsensitive(local.combined_ci_hash)
   }
+}
+
+output "combined_ci_hash" {
+  value = local.combined_ci_hash
 }
