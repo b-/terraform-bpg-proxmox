@@ -147,7 +147,7 @@ variable "scsihw" {
       virtio-scsi-single, # VirtIO SCSI (single queue).
       megasas,            # LSI Logic MegaRAID SAS.
       pvscsi,             # VMware Paravirtual SCSI.
-    ], var.machine_type)
+    ], var.scsihw)
     error_message = "Unknown SCSI controller."
   }
 }
@@ -160,7 +160,7 @@ variable "disks" {
     # datastore_id to store disk on, defaults to local
     storage = optional(string, "local")
     # interface to attach disk to vm on, e.g., scsi0
-    interface = string
+    interface = optional(string, null)
     # disk size in GB, defaults to 8
     size   = optional(number, 8)
     format = optional(string, "raw")
