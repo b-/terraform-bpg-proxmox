@@ -20,6 +20,6 @@ resource "proxmox_virtual_environment_download_file" "image" {
   upload_timeout     = var.image_upload_timeout
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 }

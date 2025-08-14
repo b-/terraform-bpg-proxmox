@@ -141,12 +141,12 @@ variable "scsihw" {
   default     = "virtio-scsi-single" # more advanced and faster than virtio-scsi-pci
   validation {
     condition = contains([
-      lsi,                # LSI Logic SAS1068E.
-      lsi53c810,          # LSI Logic 53C810.
-      virtio-scsi-pci,    # VirtIO SCSI.
-      virtio-scsi-single, # VirtIO SCSI (single queue).
-      megasas,            # LSI Logic MegaRAID SAS.
-      pvscsi,             # VMware Paravirtual SCSI.
+      "lsi",                # LSI Logic SAS1068E.
+      "lsi53c810",          # LSI Logic 53C810.
+      "virtio-scsi-pci",    # VirtIO SCSI.
+      "virtio-scsi-single", # VirtIO SCSI (single queue).
+      "megasas",            # LSI Logic MegaRAID SAS.
+      "pvscsi",             # VMware Paravirtual SCSI.
     ], var.scsihw)
     error_message = "Unknown SCSI controller."
   }
@@ -205,7 +205,7 @@ variable "efi" {
 variable "cloudinit" {
   type = object({
     # "Disk storage location for the cloud-init disk."
-    datastore_id = optional(string, "local-lvm")
+    storage = optional(string, "local-lvm")
     # Disk storage location to write custom cloud-init `_contents` snippets. Must have `snippets` enabled in Datacenter options.
     snippets_storage = optional(string, "local")
     # "Hardware interface for cloud-init configuration data."
@@ -231,5 +231,9 @@ variable "nics" {
     bridge = optional(string, "vmbr0")
     vlan   = optional(number, null)
   }))
-  default = [{}]
+  default = [{
+    model  = "virtio0"
+    bridge = "vmbr0"
+    vlan   = null
+  }]
 }

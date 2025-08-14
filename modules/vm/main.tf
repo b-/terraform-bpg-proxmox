@@ -8,8 +8,11 @@ terraform {
   }
 }
 
-
+locals {
+  cloud_init_enabled = var.cloudinit != null ? true : false
+}
 module "cloud_init_files" {
+  count                    = local.cloud_init_enabled ? 1 : 0
   source                   = "../cloud-init-files"
   node                     = var.node
   ci_snippets_storage      = var.cloudinit.storage
@@ -31,7 +34,7 @@ resource "terraform_data" "creation_date" {
   }
 }
 locals {
-  creation_date = resource.terraform_data.output.timestamp
+  creation_date = resource.terraform_data.creation_date.output.timestamp
   efi_enabled   = var.efi != null ? true : false
   numa_enabled  = var.numa != null ? true : false
   is_clone      = var.clone != null ? true : false
@@ -64,11 +67,11 @@ resource "proxmox_virtual_environment_vm" "vm" {
 
   # cloud-init config
   initialization {
-    datastore_id         = var.cloudinit.datastore_id
-    meta_data_file_id    = module.cloud_init_files.meta_data_file_id
-    network_data_file_id = module.cloud_init_files.network_data_file_id
-    user_data_file_id    = module.cloud_init_files.user_data_file_id
-    vendor_data_file_id  = module.cloud_init_files.vendor_data_file_id
+    datastore_id         = var.cloudinit.storage
+    meta_data_file_id    = module.cloud_init_files[0].meta_data_file_id
+    network_data_file_id = module.cloud_init_files[0].network_data_file_id
+    user_data_file_id    = module.cloud_init_files[0].user_data_file_id
+    vendor_data_file_id  = module.cloud_init_files[0].vendor_data_file_id
     interface            = var.cloudinit.interface
     type                 = var.cloudinit.type
   }
@@ -118,9 +121,9 @@ resource "proxmox_virtual_environment_vm" "vm" {
   dynamic "network_device" {
     for_each = var.nics
     content {
-      model   = each.value.model
-      bridge  = each.value.bridge
-      vlan_id = each.value.vlan
+      model   = network_device.value.model
+      bridge  = network_device.value.bridge
+      vlan_id = network_device.value.vlan
     }
   }
 
@@ -131,25 +134,25 @@ resource "proxmox_virtual_environment_vm" "vm" {
     content {
       file_id = (
         # Priority 1: download resource ID
-        lookup(some_download_resource.disk_downloads, each.key, null) != null
-        ? some_download_resource.disk_downloads[each.key].id
+        lookup(module.cloud_image.disk_downloads, disks.key, null) != null
+        ? module.cloud_image.disk_downloads[disks.key].id
         # Priority 2: import_from if set
-        : lookup(each.value, "import_from", null) != null
-        ? each.value.import_from
+        : lookup(disks.value, "import_from", null) != null
+        ? disks.value.import_from
         # Priority 3: null/unset
         : null
       )
-      datastore_id = each.value.storage
-      interface    = coalesce(each.value.interface, "scsi${each.key}")
-      size         = each.value.size
+      datastore_id = disks.value.storage
+      interface    = coalesce(disks.value.interface, "scsi${disks.key}")
+      size         = disks.value.size
       file_format = coalesce(
-        each.value.format,
-        each.value.storage == "local" ? "qcow2" : "raw"
+        disks.value.format,
+        disks.value.storage == "local" ? "qcow2" : "raw"
       )
-      cache    = each.value.cache
-      iothread = each.value.iothread
-      ssd      = each.value.ssd
-      discard  = each.value.discard
+      cache    = disks.value.cache
+      iothread = disks.value.iothread
+      ssd      = disks.value.ssd
+      discard  = disks.value.discard
     }
   }
 
