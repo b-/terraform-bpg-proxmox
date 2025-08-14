@@ -1,67 +1,28 @@
-## Image Variables
-variable "image_filename" {
-  description = "Filename, default `null` will extract name from URL."
-  type        = string
-  default     = null
-}
-
-variable "image_url" {
-  description = "Image URL."
-  type        = string
-}
-
-variable "image_checksum" {
-  description = "Image checksum value."
-  type        = string
-}
-
-variable "image_checksum_algorithm" {
-  description = "Image checksum algorithm."
-  type        = string
-  default     = "sha256"
-  validation {
-    condition     = contains(["md5", "sha1", "sha224", "sha256", "sha384", "sha512"], var.image_checksum_algorithm)
-    error_message = "Invalid checksum setting: ${var.image_checksum_algorithm}."
-  }
-}
-
-variable "image_datastore_id" {
-  description = "PVE disk location for images."
-  type        = string
-  default     = "local"
-}
-
-variable "image_content_type" {
-  description = "PVE folder name for images."
-  type        = string
-  default     = "iso"
-}
-
-variable "image_overwrite" {
-  description = "Overwrite pre-existing image on PVE host."
-  type        = bool
-  default     = false
-}
-
-variable "image_upload_timeout" {
-  description = "Image upload timeout in seconds."
-  type        = number
-  default     = 600
-}
-
 ## VM Variables
 variable "node" {
   description = "Name of Proxmox node to provision VM on, e.g. `pve`."
   type        = string
 }
 
-variable "vm_id" {
+variable "started" {
+  description = "Start the VM after creation."
+  type        = bool
+  default     = false
+}
+
+variable "template" {
+  description = "Create a template VM."
+  type        = bool
+  default     = false
+}
+
+variable "vmid" {
   description = "ID number for new VM."
   type        = number
   default     = null
 }
 
-variable "vm_name" {
+variable "name" {
   description = "Name, must be alphanumeric (may contain dash: `-`). Defaults to PVE naming, `VM <VM_ID>`."
   type        = string
   default     = null
@@ -76,23 +37,25 @@ variable "description" {
 variable "tags" {
   description = "Proxmox tags for the VM."
   type        = list(string)
-  default     = null
+  default     = ["terraform"]
 }
 
-variable "bios" {
-  description = "VM bios, setting to `ovmf` will automatically create a EFI disk."
+variable "clone" {
+  default = null
+  type = object({
+    # "Name of Proxmox node where the template resides, e.g. `pve`."
+    template_node = string
+    # "Proxmox template ID to clone."
+    template_id = number
+    # "Create a full independent clone; setting to `false` will create a linked clone."
+    full = bool
+  })
+}
+
+variable "os_type" {
+  description = "QEMU OS type, e.g. `l26` for Linux 6.x - 2.6 kernel."
   type        = string
-  default     = "seabios"
-  validation {
-    condition     = contains(["seabios", "ovmf"], var.bios)
-    error_message = "Invalid bios setting: ${var.bios}. Valid options: 'seabios' or 'ovmf'."
-  }
-}
-
-variable "serial" {
-  description = "Enable serial port."
-  type        = bool
-  default     = true
+  default     = "l26"
 }
 
 variable "qemu_guest_agent" {
@@ -100,6 +63,7 @@ variable "qemu_guest_agent" {
   type        = bool
   default     = true
 }
+
 
 variable "machine_type" {
   description = "Hardware layout for the VM, `q35` or `x440i`."
@@ -109,6 +73,28 @@ variable "machine_type" {
     condition     = contains(["q35", "x440i"], var.machine_type)
     error_message = "Unknown machine setting."
   }
+}
+
+variable "serial" {
+  description = "Enable serial port."
+  type        = bool
+  default     = true
+}
+
+variable "tablet" {
+  description = "Enable tablet for pointer."
+  type        = bool
+  default     = false
+}
+
+variable "display_type" {
+  type    = string
+  default = null
+}
+
+variable "display_memory" {
+  type    = number
+  default = null
 }
 
 variable "vcpu" {
@@ -132,24 +118,24 @@ variable "memory" {
 variable "memory_floating" {
   description = "Minimum memory size in `MiB`, setting this value enables memory ballooning."
   type        = number
-  default     = var.memory
+  default     = null
 }
 
-variable "started" {
-  description = "Start the VM after creation."
-  type        = bool
-  default     = false
-}
-
-variable "template" {
-  description = "Create a template VM."
-  type        = bool
-  default     = false
+variable "numa" {
+  description = "Emulate NUMA architecture."
+  type = object({
+    device    = optional(string, null)
+    cpus      = optional(string, null)
+    memory    = optional(string, null)
+    hostnodes = optional(string, null)
+    policy    = optional(string, "preferred")
+  })
+  default = null
 }
 
 ## Disk Variables
 
-variable "scsi_hardware" {
+variable "scsihw" {
   description = "SCSI controller type."
   type        = string
   default     = "virtio-scsi-single" # more advanced and faster than virtio-scsi-pci
@@ -162,148 +148,88 @@ variable "scsi_hardware" {
       megasas,            # LSI Logic MegaRAID SAS.
       pvscsi,             # VMware Paravirtual SCSI.
     ], var.machine_type)
-    error_message = "Unknown machine setting."
+    error_message = "Unknown SCSI controller."
   }
 }
 
-variable "efi_disk_storage" {
-  description = "EFI disk storage location."
-  type        = string
-  default     = var.disk_storage
+variable "disks" {
+  description = "List of disks to attach."
+  type = list(object({
+    # id to import
+    import_from = optional(string, null)
+    # datastore_id to store disk on, defaults to local
+    storage = optional(string, "local")
+    # interface to attach disk to vm on, e.g., scsi0
+    interface = string
+    # disk size in GB, defaults to 8
+    size   = optional(number, 8)
+    format = optional(string, "raw")
+    # cache setting
+    cache = optional(string, "writeback")
+    # iothread setting
+    iothread = optional(bool, true)
+    # report that the disk is an ssd
+    ssd = optional(bool, false)
+    # enable TRIM to reclaim unused bytes
+    discard = optional(bool, false)
+    download = optional(object({ # new optional download object
+      filename       = string
+      url            = string
+      checksum       = optional(string)
+      algorithm      = optional(string)
+      storage        = string
+      content_type   = optional(string)
+      overwrite      = optional(bool, false)
+      upload_timeout = optional(number)
+    }))
+  }))
+  default = [{}]
 }
 
-variable "efi_disk_format" {
-  description = "EFI disk storage format."
-  type        = string
-  default     = var.disk_format
-}
-
-variable "efi_disk_type" {
-  description = "EFI disk OVMF firmware version."
-  type        = string
-  default     = "4m"
-}
-
-variable "efi_disk_pre_enrolled_keys" {
-  description = "EFI disk enable pre-enrolled secure boot keys."
-  type        = bool
-  default     = true
-}
-
-variable "disk_storage" {
-  description = "Disk storage location."
-  type        = string
-  default     = "local-lvm"
-}
-
-variable "disk_interface" {
-  description = "Disk storage interface."
-  type        = string
-  default     = "scsi0"
-}
-
-variable "disk_size" {
-  type    = number
-  default = 8
-}
-
-variable "disk_format" {
-  type    = string
-  default = "raw"
-}
-
-variable "disk_cache" {
-  type    = string
-  default = "writeback"
-}
-
-variable "disk_iothread" {
-  description = "Enable IO threading."
-  type        = bool
-  default     = false
-}
-
-variable "disk_ssd" {
-  description = "Enable SSD emulation."
-  type        = bool
-  default     = true
-}
-
-variable "disk_discard" {
-  description = "Enable TRIM."
-  type        = string
-  default     = "on"
+variable "efi" {
+  description = "Enable EFI."
+  type = object({
+    # "EFI disk storage location."
+    storage = optional(string, "local")
+    # "EFI disk storage format."
+    format = optional(string, "raw")
+    # "EFI disk OVMF firmware version."
+    type = optional(string, "4m")
+    # "EFI disk enable pre-enrolled secure boot keys."
+    pre_enrolled_keys = optional(bool, false)
+  })
+  default = null
 }
 
 ## Cloud-init Variables
-variable "ci_datastore_id" {
-  description = "Disk storage location for the cloud-init disk."
-  type        = string
-  default     = "local-lvm"
+variable "cloudinit" {
+  type = object({
+    # "Disk storage location for the cloud-init disk."
+    datastore_id = optional(string, "local-lvm")
+    # Disk storage location to write custom cloud-init `_contents` snippets. Must have `snippets` enabled in Datacenter options.
+    snippets_storage = optional(string, "local")
+    # "Hardware interface for cloud-init configuration data."
+    interface = optional(string, "ide2")
+    # "Type of cloud-init datasource."
+    type = optional(string, "nocloud")
+    # meta_data file contents
+    meta_data = optional(string, null)
+    # user_data file contents
+    user_data = optional(string, null)
+    # network_data file contents
+    network_data = optional(string, null)
+    # vendor_data file contents
+    vendor_data = optional(string, null)
+  })
+  default = null
 }
 
-variable "ci_interface" {
-  description = "Hardware interface for cloud-init configuration data."
-  type        = string
-  default     = "ide2"
-}
-
-variable "ci_datasource_type" {
-  description = "Type of cloud-init datasource."
-  type        = string
-  default     = "nocloud"
-}
-
-variable "ci_meta_data" {
-  description = "Add a custom cloud-init `meta` configuration file, e.g `local:snippets/meta-data.yaml`."
-  type        = string
-  default     = null
-}
-
-variable "ci_meta_data_contents" {
-  description = "Add the contents of a custom cloud-init `meta` configuration file, e.g `local:snippets/meta-data.yaml`."
-  type        = string
-  default     = null
-}
-
-variable "ci_network_data" {
-  description = "Add a custom cloud-init `network` configuration file, e.g `local:snippets/network-data.yaml`."
-  type        = string
-  default     = null
-}
-
-variable "ci_network_data_contents" {
-  description = "Add the contents of a custom cloud-init `network` configuration file, e.g `local:snippets/network-data.yaml`."
-  type        = string
-  default     = null
-}
-
-variable "ci_user_data" {
-  description = "Add a custom cloud-init `user` configuration file, e.g `local:snippets/user-data.yaml`."
-  type        = string
-  default     = null
-}
-
-variable "ci_user_data_contents" {
-  description = "Add the contents of a custom cloud-init `user` configuration file, e.g `local:snippets/user-data.yaml`."
-  type        = string
-  default     = null
-}
-
-variable "ci_vendor_data" {
-  description = "Add a custom cloud-init `vendor` configuration file, e.g `local:snippets/vendor-data.yaml`."
-  type        = string
-  default     = null
-}
-
-variable "ci_vendor_data_contents" {
-  description = "Add the contents of a custom cloud-init `vendor` configuration file, e.g `local:snippets/vendor-data.yaml`."
-  type        = string
-  default     = null
-}
-
-variable "ci_snippets_storage" {
-  description = "Disk storage location to write custom cloud-init `_contents` snippets. Must have `snippets` enabled in Datacenter options."
-  type        = string
-  default     = null
+variable "nics" {
+  description = "nic objects"
+  type = list(object({
+    model  = optional(string, "virtio")
+    bridge = optional(string, "vmbr0")
+    vlan   = optional(number, null)
+  }))
+  default = [{}]
 }
