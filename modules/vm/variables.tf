@@ -183,7 +183,7 @@ variable "disks" {
       upload_timeout = optional(number)
     }))
   }))
-  default = [{}]
+  default = null
 #    # id to import
 #    import_from =  null
 #    # datastore_id to store disk on, defaults to local
