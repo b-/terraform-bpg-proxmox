@@ -35,7 +35,7 @@ resource "terraform_data" "creation_date" {
     timestamp = timestamp()
   }
   lifecycle {
-    ignore_changes = ["input"]
+    ignore_changes = [input]
     replace_triggered_by = [
       resource.terraform_data.combined_ci_hash
     ]
@@ -147,14 +147,11 @@ resource "proxmox_virtual_environment_vm" "vm" {
     content {
       file_id = try(
         # Priority 1: download resource ID
-        lookup(module.cloud_image.disk_downloads, disk.key, null) != null
-        ? module.cloud_image.disk_downloads[disk.key].id
+        module.cloud_image[disk.key].id,
         # Priority 2: import_from if set
-        : lookup(disk.value, "import_from", null) != null
-        ? disk.value.import_from
+        disk.value.import_from,
         # Priority 3: null/unset
-        : null
-      , null)
+      null)
       datastore_id = disk.value.storage
       interface    = coalesce(disk.value.interface, "scsi${disk.key}")
       size         = disk.value.size
