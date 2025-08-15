@@ -48,7 +48,7 @@ variable "clone" {
     # "Proxmox template ID to clone."
     template_id = number
     # "Create a full independent clone; setting to `false` will create a linked clone."
-    full = bool
+    full = optional(bool, true)
   })
 }
 
