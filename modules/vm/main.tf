@@ -10,11 +10,11 @@ terraform {
 
 locals {
   cloud_init_enabled = var.cloudinit != null ? true : false
-  snippets_storage = try(var.cloudinit.snippets_storage, var.cloudinit.storage,null)
+  snippets_storage   = try(var.cloudinit.snippets_storage, var.cloudinit.storage, null)
 }
 module "cloud_init_files" {
-  count = local.cloud_init_enabled ? 1 : 0
-  source                   = "../cloud-init-files"
+  count  = local.cloud_init_enabled ? 1 : 0
+  source = "../cloud-init-files"
   #source                   = "/var/home/bri/dev/terraform-proxmox-modules/modules/cloud-init-files"
   node                     = var.node
   ci_snippets_storage      = local.snippets_storage
@@ -35,7 +35,7 @@ resource "terraform_data" "creation_date" {
     timestamp = timestamp()
   }
   lifecycle {
-    ignore_changes = [ "input" ]
+    ignore_changes = ["input"]
     replace_triggered_by = [
       resource.terraform_data.combined_ci_hash
     ]
@@ -57,7 +57,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   tags        = var.tags
   bios        = var.efi != null ? "ovmf" : "seabios"
   machine     = var.machine_type
-  started     = var.started
+  started     = var.started != null ? var.started : !var.template
   template    = var.template
 
   agent {
@@ -153,7 +153,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
         ? disk.value.import_from
         # Priority 3: null/unset
         : null
-      ,null)
+      , null)
       datastore_id = disk.value.storage
       interface    = coalesce(disk.value.interface, "scsi${disk.key}")
       size         = disk.value.size
