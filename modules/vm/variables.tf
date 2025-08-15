@@ -173,11 +173,11 @@ variable "disks" {
     # enable TRIM to reclaim unused bytes
     discard = optional(bool, false)
     download = optional(object({ # new optional download object
-      filename       = string
+      filename       = optional(string)
       url            = string
-      checksum       = optional(string)
-      algorithm      = optional(string)
-      storage        = string
+      checksum       = string
+      algorithm      = optional(string, "sha256")
+      storage        = optional(string, "local")
       content_type   = optional(string)
       overwrite      = optional(bool, false)
       upload_timeout = optional(number)
