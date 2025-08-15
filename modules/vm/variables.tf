@@ -224,9 +224,9 @@ variable "efi" {
 variable "cloudinit" {
   type = object({
     # "Disk storage location for the cloud-init disk."
-    storage = optional(string, "local-lvm")
+    storage = optional(string, "local")
     # Disk storage location to write custom cloud-init `_contents` snippets. Must have `snippets` enabled in Datacenter options.
-    snippets_storage = optional(string, "local")
+    snippets_storage = optional(string)
     # "Hardware interface for cloud-init configuration data."
     interface = optional(string, "ide2")
     # "Type of cloud-init datasource."

@@ -10,13 +10,14 @@ terraform {
 
 locals {
   cloud_init_enabled = var.cloudinit != null ? true : false
+  snippets_storage = coalesce(var.cloudinit.snippets_storage, var.cloudinit.storage)
 }
 module "cloud_init_files" {
   count = local.cloud_init_enabled ? 1 : 0
   source                   = "../cloud-init-files"
   #source                   = "/var/home/bri/dev/terraform-proxmox-modules/modules/cloud-init-files"
   node                     = var.node
-  ci_snippets_storage      = var.cloudinit.storage
+  ci_snippets_storage      = local.snippets_storage
   ci_meta_data_contents    = var.cloudinit.meta_data
   ci_network_data_contents = var.cloudinit.network_data
   ci_user_data_contents    = var.cloudinit.user_data
