@@ -60,6 +60,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   started     = var.started != null ? var.started : !var.template
   template    = var.template
 
+  stop_on_destroy = var.stop_on_destroy
   agent {
     enabled = var.qemu_guest_agent
   }

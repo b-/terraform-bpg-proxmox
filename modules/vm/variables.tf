@@ -152,6 +152,11 @@ variable "scsihw" {
   }
 }
 
+variable "stop_on_destroy" {
+  type = bool
+  default = true
+}
+
 variable "disks" {
   description = "List of disks to attach."
   type = list(object({
