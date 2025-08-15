@@ -178,7 +178,7 @@ variable "disks" {
       checksum       = string
       algorithm      = optional(string, "sha256")
       storage        = optional(string, "local")
-      content_type   = optional(string)
+      content_type   = optional(string, "iso")
       overwrite      = optional(bool, false)
       upload_timeout = optional(number)
     }))
