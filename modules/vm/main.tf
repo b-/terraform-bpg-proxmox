@@ -10,7 +10,7 @@ terraform {
 
 locals {
   cloud_init_enabled = var.cloudinit != null ? true : false
-  snippets_storage = coalesce(var.cloudinit.snippets_storage, var.cloudinit.storage)
+  snippets_storage = try(var.cloudinit.snippets_storage, var.cloudinit.storage,null)
 }
 module "cloud_init_files" {
   count = local.cloud_init_enabled ? 1 : 0
