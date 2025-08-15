@@ -66,11 +66,11 @@ variable "qemu_guest_agent" {
 
 
 variable "machine_type" {
-  description = "Hardware layout for the VM, `q35` or `x440i`."
+  description = "Hardware layout for the VM, `q35` or `pc`."
   type        = string
   default     = "q35"
   validation {
-    condition     = contains(["q35", "x440i"], var.machine_type)
+    condition     = contains(["q35", "pc"], var.machine_type)
     error_message = "Unknown machine setting."
   }
 }
@@ -153,7 +153,7 @@ variable "scsihw" {
 }
 
 variable "stop_on_destroy" {
-  type = bool
+  type    = bool
   default = true
 }
 
@@ -189,25 +189,6 @@ variable "disks" {
     }))
   }))
   default = null
-#    # id to import
-#    import_from =  null
-#    # datastore_id to store disk on, defaults to local
-#    storage =  "local"
-#    # interface to attach disk to vm on, e.g., scsi0
-#    interface =  null
-#    # disk size in GB, defaults to 8
-#    size   =  8
-#    format =  "raw"
-#    # cache setting
-#    cache =  "writeback"
-#    # iothread setting
-#    iothread =  true
-#    # report that the disk is an ssd
-#    ssd =  false
-#    # enable TRIM to reclaim unused bytes
-#    discard =  false
-#    download = null
-#  }]
 }
 
 variable "efi" {
@@ -251,13 +232,36 @@ variable "cloudinit" {
 variable "nics" {
   description = "nic objects"
   type = list(object({
-    model  = optional(string, "virtio")
-    bridge = optional(string, "vmbr0")
-    vlan   = optional(number, null)
+    model    = optional(string, "virtio")
+    bridge   = optional(string, "vmbr0")
+    vlans    = optional(list(number), [])
+    mac      = optional(string, null)
+    firewall = optional(bool, false)
+    ip_config = optional(object({
+      ipv4 = optional(object({
+        address = string
+        gateway = optional(string)
+      }))
+      ipv6 = optional(object({
+        address = string
+        gateway = optional(string)
+      }))
+    }))
   }))
   default = [{
-    model  = "virtio"
-    bridge = "vmbr0"
-    vlan   = null
+    model     = "virtio"
+    bridge    = "vmbr0"
+    vlans     = null
+    mac       = null
+    ip_config = null
+    firewall  = false
   }]
+}
+
+variable "dns" {
+  type = object({
+    domain      = optional(string, null)
+    nameservers = optional(list(string), null)
+  })
+  default = null
 }

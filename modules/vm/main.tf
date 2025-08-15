@@ -85,6 +85,33 @@ resource "proxmox_virtual_environment_vm" "vm" {
       vendor_data_file_id  = module.cloud_init_files[0].vendor_data_file_id
       interface            = var.cloudinit.interface
       type                 = var.cloudinit.type
+      # IP configuration from nics variable
+      dynamic "dns" {
+        for_each = var.dns != null ? [var.dns] : []
+        content {
+          domain  = dns.value.domain
+          servers = dns.value.nameservers
+        }
+      }
+      dynamic "ip_config" {
+        for_each = var.nics
+        content {
+          dynamic "ipv4" {
+            for_each = ip_config.value.ip_config != null && ip_config.value.ip_config.ipv4 != null ? [ip_config.value.ip_config.ipv4] : []
+            content {
+              address = ipv4.value.address
+              gateway = ipv4.value.gateway
+            }
+          }
+          dynamic "ipv6" {
+            for_each = ip_config.value.ip_config != null && ip_config.value.ip_config.ipv6 != null ? [ip_config.value.ip_config.ipv6] : []
+            content {
+              address = ipv6.value.address
+              gateway = ipv6.value.gateway
+            }
+          }
+        }
+      }
     }
   }
 
@@ -133,9 +160,13 @@ resource "proxmox_virtual_environment_vm" "vm" {
   dynamic "network_device" {
     for_each = var.nics
     content {
-      model   = network_device.value.model
-      bridge  = network_device.value.bridge
-      vlan_id = network_device.value.vlan
+      model       = network_device.value.model
+      bridge      = network_device.value.bridge
+      vlan_id     = length(network_device.value.vlans) == 1 ? network_device.value.vlans[0] : null
+      trunks      = length(network_device.value.vlans) > 1 ? join(";", [for vlan in network_device.value.vlans : tostring(vlan)]) : null
+      mac_address = network_device.value.mac
+      firewall    = network_device.value.firewall
+
     }
   }
 
