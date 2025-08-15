@@ -135,7 +135,8 @@ resource "proxmox_virtual_environment_vm" "vm" {
   scsi_hardware = var.scsihw
 
   dynamic "disk" {
-    for_each = var.disks
+    # omit if local.is_clone && var.disks == null
+    for_each = (local.is_clone && var.disks == null) ? [] : var.disks
     content {
       file_id = try(
         # Priority 1: download resource ID
