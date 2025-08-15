@@ -7,7 +7,7 @@ variable "node" {
 variable "started" {
   description = "Start the VM after creation."
   type        = bool
-  default     = false
+  default     = null
 }
 
 variable "template" {
