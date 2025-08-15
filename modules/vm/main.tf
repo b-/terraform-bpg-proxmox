@@ -12,8 +12,9 @@ locals {
   cloud_init_enabled = var.cloudinit != null ? true : false
 }
 module "cloud_init_files" {
-  count                    = local.cloud_init_enabled ? 1 : 0
+  count = local.cloud_init_enabled ? 1 : 0
   source                   = "../cloud-init-files"
+  #source                   = "/var/home/bri/dev/terraform-proxmox-modules/modules/cloud-init-files"
   node                     = var.node
   ci_snippets_storage      = var.cloudinit.storage
   ci_meta_data_contents    = var.cloudinit.meta_data
@@ -57,23 +58,26 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 
   dynamic "clone" {
-    for_each = (local.is_clone ? [1] : [])
+    for_each = (local.is_clone ? [var.clone] : [])
     content {
-      node_name = each.value.template_node
-      vm_id     = each.value.template_id
-      full      = each.value.full
+      node_name = clone.value.template_node
+      vm_id     = clone.value.template_id
+      full      = clone.value.full
     }
   }
 
   # cloud-init config
-  initialization {
-    datastore_id         = var.cloudinit.storage
-    meta_data_file_id    = module.cloud_init_files[0].meta_data_file_id
-    network_data_file_id = module.cloud_init_files[0].network_data_file_id
-    user_data_file_id    = module.cloud_init_files[0].user_data_file_id
-    vendor_data_file_id  = module.cloud_init_files[0].vendor_data_file_id
-    interface            = var.cloudinit.interface
-    type                 = var.cloudinit.type
+  dynamic "initialization" {
+    for_each = (var.cloudinit != null ? [1] : [])
+    content {
+      datastore_id         = var.cloudinit.storage
+      meta_data_file_id    = module.cloud_init_files[0].meta_data_file_id
+      network_data_file_id = module.cloud_init_files[0].network_data_file_id
+      user_data_file_id    = module.cloud_init_files[0].user_data_file_id
+      vendor_data_file_id  = module.cloud_init_files[0].vendor_data_file_id
+      interface            = var.cloudinit.interface
+      type                 = var.cloudinit.type
+    }
   }
 
   cpu {
@@ -132,27 +136,27 @@ resource "proxmox_virtual_environment_vm" "vm" {
   dynamic "disk" {
     for_each = var.disks
     content {
-      file_id = (
+      file_id = try(
         # Priority 1: download resource ID
-        lookup(module.cloud_image.disk_downloads, disks.key, null) != null
-        ? module.cloud_image.disk_downloads[disks.key].id
+        lookup(module.cloud_image.disk_downloads, disk.key, null) != null
+        ? module.cloud_image.disk_downloads[disk.key].id
         # Priority 2: import_from if set
-        : lookup(disks.value, "import_from", null) != null
-        ? disks.value.import_from
+        : lookup(disk.value, "import_from", null) != null
+        ? disk.value.import_from
         # Priority 3: null/unset
         : null
-      )
-      datastore_id = disks.value.storage
-      interface    = coalesce(disks.value.interface, "scsi${disks.key}")
-      size         = disks.value.size
+      ,null)
+      datastore_id = disk.value.storage
+      interface    = coalesce(disk.value.interface, "scsi${disk.key}")
+      size         = disk.value.size
       file_format = coalesce(
-        disks.value.format,
-        disks.value.storage == "local" ? "qcow2" : "raw"
+        disk.value.format,
+        disk.value.storage == "local" ? "qcow2" : "raw"
       )
-      cache    = disks.value.cache
-      iothread = disks.value.iothread
-      ssd      = disks.value.ssd
-      discard  = disks.value.discard
+      cache    = disk.value.cache
+      iothread = disk.value.iothread
+      ssd      = disk.value.ssd
+      discard  = disk.value.discard
     }
   }
 

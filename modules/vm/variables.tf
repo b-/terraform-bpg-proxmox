@@ -184,6 +184,25 @@ variable "disks" {
     }))
   }))
   default = [{}]
+#    # id to import
+#    import_from =  null
+#    # datastore_id to store disk on, defaults to local
+#    storage =  "local"
+#    # interface to attach disk to vm on, e.g., scsi0
+#    interface =  null
+#    # disk size in GB, defaults to 8
+#    size   =  8
+#    format =  "raw"
+#    # cache setting
+#    cache =  "writeback"
+#    # iothread setting
+#    iothread =  true
+#    # report that the disk is an ssd
+#    ssd =  false
+#    # enable TRIM to reclaim unused bytes
+#    discard =  false
+#    download = null
+#  }]
 }
 
 variable "efi" {
@@ -232,7 +251,7 @@ variable "nics" {
     vlan   = optional(number, null)
   }))
   default = [{
-    model  = "virtio0"
+    model  = "virtio"
     bridge = "vmbr0"
     vlan   = null
   }]

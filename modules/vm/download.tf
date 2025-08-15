@@ -7,6 +7,7 @@ locals {
 
 module "cloud_image" {
   source   = "../image"
+  #source                   = "/var/home/bri/dev/terraform-proxmox-modules/modules/image"
   for_each = local.disks_with_download
 
   node                     = var.node

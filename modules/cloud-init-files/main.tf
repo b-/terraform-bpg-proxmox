@@ -83,7 +83,7 @@ resource "proxmox_virtual_environment_file" "ci_vendor_data" {
 }
 
 output "vendor_data_file_id" {
-  value = resource.proxmox_virtual_environment_file.ci_vendor_data[0].id
+  value = try(resource.proxmox_virtual_environment_file.ci_vendor_data[0].id,null)
 }
 
 resource "random_id" "random_id" {
