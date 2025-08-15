@@ -34,6 +34,12 @@ resource "terraform_data" "creation_date" {
   input = {
     timestamp = timestamp()
   }
+  lifecycle {
+    ignore_changes = [ "input" ]
+    replace_triggered_by = [
+      resource.terraform_data.combined_ci_hash
+    ]
+  }
 }
 locals {
   creation_date = resource.terraform_data.creation_date.output.timestamp
