@@ -178,7 +178,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
     content {
       path_in_datastore = try(coalesce(disk.value.path_in_datastore, disk.value.id), null)
       datastore_id = coalesce(disk.value.datastore_id,disk.value.storage)
-      file_id = try(
+      import_from = try(
         # Priority 1: download resource ID
         module.cloud_image[disk.key].id,
         # Priority 2: import_from if set
