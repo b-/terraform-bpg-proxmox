@@ -18,3 +18,7 @@ output "mac_addresses" {
 output "creation_date" {
   value = time_static.creation_date.rfc3339
 }
+
+output "dated_hash" {
+  value = terraform_data.dated_hash.output.dated_hash
+}

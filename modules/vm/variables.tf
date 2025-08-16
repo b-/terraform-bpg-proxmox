@@ -62,6 +62,11 @@ variable "clone" {
   })
 }
 
+variable "hookscript" {
+  default = null
+  type = string
+  description = "Hook script file ID"
+}
 variable "os_type" {
   description = "QEMU OS type, e.g. `l26` for Linux 6.x - 2.6 kernel."
   type        = string

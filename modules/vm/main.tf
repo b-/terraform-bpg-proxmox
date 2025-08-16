@@ -27,28 +27,17 @@ module "cloud_init_files" {
   ci_user_data_contents    = var.cloudinit.user_data
   ci_vendor_data_contents  = var.cloudinit.vendor_data
 }
-
-resource "terraform_data" "combined_ci_hash" {
-  input = {
-    hash = try(module.cloud_init_files[0].combined_ci_hash, 0)
-  }
+resource "time_static" "creation_date" {}
+locals {
+  dated_hash = sha256("${module.cloud_init_files[0].combined_ci_hash}.${time_static.creation_date.rfc3339}")
 }
-
-resource "terraform_data" "creation_date" {
+resource "terraform_data" "dated_hash" {
   input = {
-    timestamp = timestamp()
+    dated_hash = local.dated_hash
   }
-  lifecycle {
-    ignore_changes = [input]
-    replace_triggered_by = [
-      resource.terraform_data.combined_ci_hash
-    ]
-  }
-}
-resource "time_static" "creation_date" {
 }
 locals {
-  creation_date = resource.time_static.creation_date.rfc3339
+  creation_date = time_static.creation_date.rfc3339
   efi_enabled   = var.efi != null ? true : false
   numa_enabled  = var.numa != null ? true : false
   is_clone      = var.clone != null ? true : false
@@ -80,6 +69,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   machine     = var.machine_type
   started     = var.started != null ? var.started : !var.template
   template    = var.template
+  hook_script_file_id = var.hookscript
 
   stop_on_destroy = var.stop_on_destroy
   agent {
