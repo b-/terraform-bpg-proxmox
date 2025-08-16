@@ -195,7 +195,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
       cache    = disk.value.cache
       iothread = disk.value.iothread
       ssd      = disk.value.ssd
-      discard  = disk.value.discard ? "on" : "ignore"
+      discard  = disk.value.discard
     }
   }
 

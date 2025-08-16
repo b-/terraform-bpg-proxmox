@@ -184,7 +184,7 @@ variable "disks" {
     # report that the disk is an ssd
     ssd = optional(bool, false)
     # enable TRIM to reclaim unused bytes
-    discard = optional(bool, true)
+    discard = optional(string, "on")
     download = optional(object({ # new optional download object
       filename       = optional(string)
       url            = string
