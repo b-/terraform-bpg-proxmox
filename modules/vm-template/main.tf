@@ -31,12 +31,6 @@ module "cloud_init_files" {
   ci_user_data_contents    = var.ci_user_data_contents
   ci_vendor_data_contents  = var.ci_vendor_data_contents
 }
-locals {
-  ci_meta_data_id    = try(var.ci_meta_data, module.cloud_init_files.meta_data_file_id)
-  ci_network_data_id = try(var.ci_network_data, module.cloud_init_files.network_data_file_id)
-  ci_user_data_id    = try(var.ci_user_data, module.cloud_init_files.user_data_file_id)
-  ci_vendor_data_id  = try(var.ci_vendor_data, module.cloud_init_files.vendor_data_file_id)
-}
 
 resource "terraform_data" "combined_ci_hash" {
   input = {

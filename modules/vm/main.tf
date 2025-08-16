@@ -5,6 +5,10 @@ terraform {
       source  = "bpg/proxmox"
       version = ">=0.53.1"
     }
+    time = {
+      source  = "hashicorp/time"
+      version = ">= 0.13.1"
+    }
   }
 }
 
@@ -41,15 +45,32 @@ resource "terraform_data" "creation_date" {
     ]
   }
 }
+resource "time_static" "creation_date" {
+}
 locals {
-  creation_date = resource.terraform_data.creation_date.output.timestamp
+  creation_date = resource.time_static.creation_date.rfc3999
   efi_enabled   = var.efi != null ? true : false
   numa_enabled  = var.numa != null ? true : false
   is_clone      = var.clone != null ? true : false
+  first_disk_interface = (
+    var.disks != null && length(var.disks) > 0
+    ? coalesce(var.disks[0].interface, "scsi0") # default bus is scsi
+    : null
+  )
+
+  boot_order = (
+    var.boot_order != null ? var.boot_order :
+    local.is_clone ? null :
+    (local.first_disk_interface != null ? [local.first_disk_interface] : null)
+
+  )
 }
 resource "proxmox_virtual_environment_vm" "vm" {
   depends_on = [module.cloud_image, module.cloud_init_files, resource.terraform_data.combined_ci_hash, resource.terraform_data.creation_date]
 
+  on_boot = var.on_boot
+
+  boot_order  = local.boot_order
   node_name   = var.node
   vm_id       = var.vmid
   name        = var.name
@@ -177,7 +198,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
     for_each = (local.is_clone && var.disks == null) ? [] : var.disks
     content {
       path_in_datastore = try(coalesce(disk.value.path_in_datastore, disk.value.id), null)
-      datastore_id = coalesce(disk.value.datastore_id,disk.value.storage)
+      datastore_id      = coalesce(disk.value.datastore_id, disk.value.storage)
       import_from = try(
         # Priority 1: download resource ID
         module.cloud_image[disk.key].id,
@@ -185,8 +206,39 @@ resource "proxmox_virtual_environment_vm" "vm" {
         disk.value.import_from,
         # Priority 3: null/unset
       null)
-      interface    = coalesce(disk.value.interface, "scsi${disk.key}")
-      size         = disk.value.size
+      interface = coalesce(disk.value.interface, "scsi${disk.key}")
+      size      = disk.value.size
+      file_format = coalesce(
+        disk.value.file_format,
+        disk.value.format,
+        disk.value.storage == "local" ? "qcow2" : "raw"
+      )
+      cache    = disk.value.cache
+      iothread = disk.value.iothread
+      ssd      = disk.value.ssd
+      discard  = disk.value.discard
+    }
+  }
+  operating_system {
+    type = var.os_type
+  }
+
+  tablet_device = var.tablet
+  dynamic "disk" {
+    # omit if local.is_clone && var.disks == null
+    for_each = (local.is_clone && var.extra_disks == null) ? [] : var.extra_disks
+    content {
+      path_in_datastore = try(coalesce(disk.value.path_in_datastore, disk.value.id), null)
+      datastore_id      = coalesce(disk.value.datastore_id, disk.value.storage)
+      import_from = try(
+        # Priority 1: download resource ID
+        module.cloud_image[disk.key].id,
+        # Priority 2: import_from if set
+        disk.value.import_from,
+        # Priority 3: null/unset
+      null)
+      interface = coalesce(disk.value.interface, "scsi${disk.key}")
+      size      = disk.value.size
       file_format = coalesce(
         disk.value.file_format,
         disk.value.format,

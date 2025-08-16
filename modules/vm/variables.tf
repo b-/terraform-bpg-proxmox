@@ -10,6 +10,16 @@ variable "started" {
   default     = null
 }
 
+variable "on_boot" {
+  description = "Start VM on boot."
+  type        = bool
+  default     = true
+}
+
+variable "boot_order" {
+  type    = list(string)
+  default = null
+}
 variable "template" {
   description = "Create a template VM."
   type        = bool
@@ -197,6 +207,47 @@ variable "disks" {
     }))
   }))
   default = null
+}
+variable "extra_disks" {
+  description = "List of additional disks to attach."
+  type = list(object({
+    # id (path_in_datastore) to use, raw, without importing first
+    id                = optional(string, null)
+    path_in_datastore = optional(string, null) # overrides above for compatibility
+
+    # id to import
+    import_from = optional(string, null)
+
+    # datastore_id to store disk on, defaults to local
+    storage      = optional(string, "local")
+    datastore_id = optional(string, null) # overrides above for compatibility
+
+    # interface to attach disk to vm on, e.g., scsi0
+    interface = optional(string, null)
+    # disk size in GB, defaults to 8
+    size        = optional(number, 8)
+    format      = optional(string, null)
+    file_format = optional(string, null) # overrides above for compatibility
+    # cache setting
+    cache = optional(string, "writeback")
+    # iothread setting
+    iothread = optional(bool, true)
+    # report that the disk is an ssd
+    ssd = optional(bool, false)
+    # enable TRIM to reclaim unused bytes
+    discard = optional(string, "on")
+    download = optional(object({ # new optional download object
+      filename       = optional(string)
+      url            = string
+      checksum       = string
+      algorithm      = optional(string, "sha256")
+      storage        = optional(string, "local")
+      content_type   = optional(string, "import")
+      overwrite      = optional(bool, false)
+      upload_timeout = optional(number)
+    }))
+  }))
+  default = []
 }
 
 variable "efi" {

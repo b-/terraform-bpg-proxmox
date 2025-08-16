@@ -15,3 +15,6 @@ output "ipv6_addresses" {
 output "mac_addresses" {
   value = proxmox_virtual_environment_vm.vm.mac_addresses
 }
+output "creation_date" {
+  value = time_static.creation_date.rfc3339
+}
