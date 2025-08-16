@@ -176,6 +176,8 @@ resource "proxmox_virtual_environment_vm" "vm" {
     # omit if local.is_clone && var.disks == null
     for_each = (local.is_clone && var.disks == null) ? [] : var.disks
     content {
+      path_in_datastore = try(coalesce(disk.value.path_in_datastore, disk.value.id), null)
+      datastore_id = coalesce(disk.value.datastore_id,disk.value.storage)
       file_id = try(
         # Priority 1: download resource ID
         module.cloud_image[disk.key].id,
@@ -183,10 +185,10 @@ resource "proxmox_virtual_environment_vm" "vm" {
         disk.value.import_from,
         # Priority 3: null/unset
       null)
-      datastore_id = disk.value.storage
       interface    = coalesce(disk.value.interface, "scsi${disk.key}")
       size         = disk.value.size
       file_format = coalesce(
+        disk.value.file_format,
         disk.value.format,
         disk.value.storage == "local" ? "qcow2" : "raw"
       )
