@@ -41,7 +41,7 @@ variable "image_content_type" {
   type        = string
   default     = "iso"
   validation {
-    condition     = contains(["iso", "vztmpl"], var.image_content_type)
+    condition     = contains(["iso", "vztmpl", "import", "images"], var.image_content_type)
     error_message = "Invalid content type: ${var.image_content_type}."
   }
 }
