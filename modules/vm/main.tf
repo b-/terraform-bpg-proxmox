@@ -48,7 +48,7 @@ resource "terraform_data" "creation_date" {
 resource "time_static" "creation_date" {
 }
 locals {
-  creation_date = resource.time_static.creation_date.rfc3999
+  creation_date = resource.time_static.creation_date.rfc3339
   efi_enabled   = var.efi != null ? true : false
   numa_enabled  = var.numa != null ? true : false
   is_clone      = var.clone != null ? true : false
