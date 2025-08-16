@@ -39,7 +39,7 @@ variable "image_datastore_id" {
 variable "image_content_type" {
   description = "File content type, `iso` for VM images or `vztmpl` for LXC images."
   type        = string
-  default     = "iso"
+  default     = "import"
   validation {
     condition     = contains(["iso", "vztmpl", "import", "images"], var.image_content_type)
     error_message = "Invalid content type: ${var.image_content_type}."
