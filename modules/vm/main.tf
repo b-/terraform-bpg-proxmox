@@ -79,7 +79,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   bios        = var.efi != null ? "ovmf" : "seabios"
   machine     = var.machine_type
   started     = var.started != null ? var.started : !var.template
-  template    = var.template
+  
 
   stop_on_destroy = var.stop_on_destroy
   agent {
@@ -251,7 +251,18 @@ resource "proxmox_virtual_environment_vm" "vm" {
     }
   }
 
+  # manually create template due to https://github.com/bpg/terraform-provider-proxmox/issues/998 which results in https://github.com/bpg/terraform-provider-proxmox/issues/1959 preventing linked clones
+  #template    = var.template
+  template    = false
+  provisioner "remote-exec" {
+    inline = [
+        "#!/usr/bin/env bash",
+        "if ${var.template}; then",
+        "qm template ${self.vm_id}"
+     ]
+  }
   lifecycle {
+    ignore_changes = [ template ]
     replace_triggered_by = [resource.terraform_data.combined_ci_hash]
   }
 }

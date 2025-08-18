@@ -294,3 +294,33 @@ Linux VM Cloud Images:
 [proxmox-template-scripts]: https://github.com/trfore/proxmox-template-scripts
 [terraform-bpg-proxmox]: https://github.com/trfore/terraform-bpg-proxmox
 [terraform-telmate-proxmox]: https://github.com/trfore/terraform-telmate-proxmox
+
+<!-- BEGIN_TF_DOCS -->
+## Requirements
+
+No requirements.
+
+## Providers
+
+No providers.
+
+## Modules
+
+No modules.
+
+## Resources
+
+No resources.
+
+## Required Inputs
+
+No required inputs.
+
+## Optional Inputs
+
+No optional inputs.
+
+## Outputs
+
+No outputs.
+<!-- END_TF_DOCS -->
