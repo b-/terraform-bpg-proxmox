@@ -256,9 +256,10 @@ resource "proxmox_virtual_environment_vm" "vm" {
   template    = false
   provisioner "local-exec" {
     command = <<-EOF
+      set -x
       if ${var.template}; then
-        echo "Creating template via SSH connection."
-        ssh root@pve1.shark-perch.ts.net qm template ${self.vm_id}
+        ssh root@pve1.shark-perch.ts.net \
+          qm template ${self.vm_id}
       fi
     EOF
   }
