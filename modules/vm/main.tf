@@ -258,7 +258,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
     command = <<-EOF
       set -x
       if ${var.template}; then
-        ssh root@pve1.shark-perch.ts.net \
+        ssh root@pve1.shark-perch.ts.net -vv \
           qm template ${self.vm_id}
       fi
     EOF
