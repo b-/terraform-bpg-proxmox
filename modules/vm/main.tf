@@ -256,10 +256,9 @@ resource "proxmox_virtual_environment_vm" "vm" {
   template    = false
   provisioner "local-exec" {
     command = <<-EOF
-      #!/usr/bin/env bash
-      set -euxo pipefail
       if ${var.template}; then
-      ssh root@pve1.shark-perch.ts.net qm template ${self.vm_id}
+        echo "Creating template via SSH connection."
+        ssh root@pve1.shark-perch.ts.net qm template ${self.vm_id}
       fi
     EOF
   }
