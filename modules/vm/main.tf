@@ -254,12 +254,14 @@ resource "proxmox_virtual_environment_vm" "vm" {
   # manually create template due to https://github.com/bpg/terraform-provider-proxmox/issues/998 which results in https://github.com/bpg/terraform-provider-proxmox/issues/1959 preventing linked clones
   #template    = var.template
   template    = false
-  provisioner "remote-exec" {
-    inline = [
-        "#!/usr/bin/env bash",
-        "if ${var.template}; then",
-        "qm template ${self.vm_id}"
-     ]
+  provisioner "local-exec" {
+    command = <<-EOF
+      set -x
+      if ${var.template}; then
+        ssh root@pve1.shark-perch.ts.net -vv \
+          qm template ${self.vm_id}
+      fi
+    EOF
   }
   lifecycle {
     ignore_changes = [ template ]
