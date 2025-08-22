@@ -1,7 +1,7 @@
 locals {
   disks_with_download = {
     for idx, disk in coalesce(var.disks, []) : idx => disk
-    if lookup(disk, "download", null) != null && lookup(disk.download, "url", null) != null
+    if try(disk.value.download, null) != null
   }
 }
 
